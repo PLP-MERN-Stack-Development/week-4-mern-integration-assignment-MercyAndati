@@ -14,11 +14,20 @@ export const AuthProvider = ({ children }) => {
   setIsLoading(false);
 }, []);
 
-  const login = async (credentials) => {
-    const data = await authService.login(credentials);
-    setUser(data.user);
-    return data;
-  };
+ const login = async (credentials) => {
+  try {
+    const response = await authService.login(credentials);
+    // Force immediate UI update in two ways:
+    setUser(response.data.user); // 1. Set from response
+    setTimeout(() => {
+      setUser(authService.getCurrentUser()); // 2. Force refresh from localStorage
+    }, 0);
+    return response.data;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};
 
   const register = async (userData) => {
     const data = await authService.register(userData);

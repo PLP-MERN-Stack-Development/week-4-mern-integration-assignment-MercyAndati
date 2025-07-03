@@ -15,9 +15,10 @@ module.exports = (err, req, res, next) => {
   
   // Mongoose duplicate key
   if (err.code === 11000) {
-    const message = 'Duplicate field value entered';
-    error = new ErrorResponse(message, 400);
-  }
+  const field = Object.keys(err.keyPattern)[0]; // Gets 'username' or 'email'
+  const message = `That ${field} is already taken`;
+  error = new ErrorResponse(message, 400);
+}
   
   // Mongoose validation error
   if (err.name === 'ValidationError') {

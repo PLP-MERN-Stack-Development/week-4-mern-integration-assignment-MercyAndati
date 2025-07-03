@@ -4,14 +4,14 @@ const bcrypt = require ('bcryptjs');
 const UserSchema = new mongoose.Schema({
     username:{
         type: String,
-        required: true,
-        unique: true,
+        required: [true, 'Please add a username'],
+        unique: [true, 'Username already exists'],
         trim: true
     },
     email: {
         type: String,
-        required: true,
-        unique: true,
+        required: [true, 'Please add an email'],
+        unique: [true, 'Email already exists'],
         match:[/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'pleae enter a valid email']
     },
     password:{
@@ -38,4 +38,10 @@ UserSchema.pre('save', async function(next){
 UserSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+//explicit index 
+UserSchema.index({ username: 1 }, { unique: true });
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ role: 1 });
+
 module.exports = mongoose.model('User', UserSchema); 

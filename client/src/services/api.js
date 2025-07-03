@@ -121,6 +121,8 @@ export const authService = {
   // Login user
   login: async (credentials) => {
     const response = await api.post('/auth/login', credentials);
+    //test line
+    console.log('Login API response:', response.data);
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -143,7 +145,7 @@ getCurrentUser: () => {
     console.error('Error parsing user data:', error);
     return null;
   }
-},
+}
 
 };
 

@@ -11,7 +11,7 @@ const HomePage = () => {
     error, 
     loading, 
     request: fetchPosts 
-  } = useApi(() => postService.getAllPosts(1, 10)); // Fixed: Properly wrapped
+  } = useApi(() => postService.getAllPosts(1, 10));
 
   useEffect(() => {
     fetchPosts();

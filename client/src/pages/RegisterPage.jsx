@@ -24,26 +24,31 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
+  e.preventDefault();
+  setError(null);
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    setError('Passwords do not match');
+    return;
+  }
 
-    try {
-      const response = await request({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
-      register(response);
-      navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
-    }
-  };
+  try {
+    const response = await request({
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+    });
+    register(response);
+    setTimeout(() => {
+      window.location.href = '/'; // Same refresh pattern as login
+    }, 100);
+  } catch (err) {
+    // Improved error message handling
+    const errorMessage = err.response?.data?.error || 
+                        (err.code === 11000 ? 'Username or email already exists' : 'Registration failed');
+    setError(errorMessage);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">

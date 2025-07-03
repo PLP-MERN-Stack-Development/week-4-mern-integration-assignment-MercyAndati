@@ -22,17 +22,19 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-
-    try {
-      const response = await request(formData);
-      login(response);
-      navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
-    }
-  };
+  e.preventDefault();
+  setError(null);
+  
+  try {
+    const response = await authService.login(formData);
+    login(response);
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 100); // 100ms delay
+  } catch (err) {
+    setError(err.response?.data?.error || 'Login failed');
+  }
+};
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">

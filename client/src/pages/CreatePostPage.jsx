@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postService, categoryService } from '../services/api';
 import useApi from '../hooks/useApi';
@@ -7,8 +7,8 @@ import { useAuth } from '../context/AuthContext';
 const CreatePostPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { data: categories } = useApi(categoryService.getAllCategories);
-  const [formData, setFormData] = useState({
+const { data: categories, loading: categoriesLoading, error: categoriesError , request:fetchCategories} = useApi(categoryService.getAllCategories, {initialData: []});  
+const [formData, setFormData] = useState({
     title: '',
     content: '',
     excerpt: '',
@@ -19,6 +19,24 @@ const CreatePostPage = () => {
   });
   const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState(null);
+
+  //for debugging
+  useEffect(() => {
+  console.log('Categories loading state:', categoriesLoading);
+  console.log('Categories error:', categoriesError);
+  console.log('Full categories response:', categories);
+  if (categories?.data) {
+    console.log('Nested data structure:', {
+      success: categories.data.success,
+      count: categories.data.count,
+      firstCategory: categories.data.data?.[0]
+    });
+  }
+}, [categoriesLoading, categoriesError, categories]);
+
+useEffect(() => {
+  fetchCategories(); // This will trigger the API call
+}, []);// run only on mount
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -51,6 +69,13 @@ const CreatePostPage = () => {
       if (formData.featuredImage) {
         formDataToSend.append('featuredImage', formData.featuredImage);
       }
+
+        //debugging
+      console.log('Form data being sent:', {
+      title: formData.title,
+      category: formData.category,
+      //others
+    });
 
       const response = await postService.createPost(formDataToSend);
       navigate(`/posts/${response.data._id}`);
@@ -105,6 +130,7 @@ const CreatePostPage = () => {
 
         <div>
           <label className="block text-gray-700 mb-2">Category</label>
+          
           <select
             name="category"
             value={formData.category}
@@ -113,7 +139,9 @@ const CreatePostPage = () => {
             required
           >
             <option value="">Select a category</option>
-            {categories?.data?.map((category) => (
+            {categoriesLoading && <option value="" disabled>Loading categories...</option>}
+            {categoriesError && <option value="" disabled>Error loading categories</option>}
+            {Array.isArray(categories) && categories.map((category) => (
               <option key={category._id} value={category._id}>
                 {category.name}
               </option>
