@@ -6,12 +6,13 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    setUser(currentUser);
-    setIsLoading(false);
-  }, []);
+  const currentUser = authService.getCurrentUser();
+  setUser(currentUser || null); 
+  setIsLoading(false);
+}, []);
 
   const login = async (credentials) => {
     const data = await authService.login(credentials);

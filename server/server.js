@@ -40,6 +40,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
 
+
 // Root route
 app.get('/', (req, res) => {
   res.send('MERN Blog API is running');

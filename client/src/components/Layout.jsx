@@ -7,7 +7,7 @@ const Layout = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <Outlet />
+        <Outlet /> {/* This is where child routes will render */}
       </main>
       <Footer />
     </div>

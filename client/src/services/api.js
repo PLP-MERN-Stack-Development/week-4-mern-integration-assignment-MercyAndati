@@ -106,8 +106,16 @@ export const categoryService = {
 export const authService = {
   // Register a new user
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
-    return response.data;
+    try {
+      const response = await api.post('/auth/register', userData);
+      if(response.data.token){
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+      }
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   // Login user
@@ -125,12 +133,18 @@ export const authService = {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   },
-
-  // Get current user
-  getCurrentUser: () => {
+  // Get current user from localStorage
+getCurrentUser: () => {
+  try {
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  },
+    if (!user || user === 'undefined') return null;
+    return JSON.parse(user);
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    return null;
+  }
+},
+
 };
 
 export default api; 
