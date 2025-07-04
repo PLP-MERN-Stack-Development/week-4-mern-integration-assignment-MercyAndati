@@ -42,11 +42,11 @@ const CategoriesPage = () => {
   if (error) return <ErrorDisplay error={error} onRetry={fetchCategories} />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8 dark:bg-gray-950 dark:text-gray-300">
       <h1 className="text-3xl font-bold mb-8">Categories</h1>
       
       {user?.role === 'admin' && (
-        <form onSubmit={handleAddCategory} className="mb-8">
+        <form onSubmit={handleAddCategory} className="mb-8 dark:text-gray-200">
           <div className="flex gap-2">
             <input
               type="text"
@@ -64,7 +64,7 @@ const CategoriesPage = () => {
             />
             <button 
               type="submit" 
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               Add Category
             </button>

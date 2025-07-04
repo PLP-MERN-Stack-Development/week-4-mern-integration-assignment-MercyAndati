@@ -26,7 +26,7 @@ const EditPostPage = () => {
     content: "",
     excerpt: "",
     category: "",
-    tags: "",
+    tags: '',
     isPublished: true,
     featuredImage: null,
   })
@@ -140,12 +140,12 @@ const EditPostPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 dark:text-gray-300">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Edit Post</h1>
         <button
           onClick={() => navigate(`/posts/${id}`)}
-          className="text-gray-600 hover:text-gray-800 px-3 py-1 border rounded"
+          className="text-gray-800 hover:text-gray-600 dark:text-gray-400 px-3 py-1 border rounded-xl"
         >
           Cancel
         </button>
@@ -260,14 +260,14 @@ const EditPostPage = () => {
         <div className="flex gap-2">
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="bg-blue-500 dark:bg-gray-900 text-white px-4 py-2 rounded-xl hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Update Post
           </button>
           <button
             type="button"
             onClick={() => navigate(`/posts/${id}`)}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            className="bg-purple-500 dark:bg-gray-900 text-white px-4 py-2 rounded-xl hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >
             Cancel
           </button>

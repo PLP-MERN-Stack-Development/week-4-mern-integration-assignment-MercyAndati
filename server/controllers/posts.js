@@ -85,7 +85,32 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Not authorized to update this post`, 401))
   }
 
-  post = await Post.findByIdAndUpdate(req.params.id, req.body, {
+  // Process the request body similar to createPost
+  const { title, content, excerpt, category, tags, isPublished } = req.body
+  let featuredImagePath = post.featuredImage // Keep existing image by default
+
+  // If a new file was uploaded
+  if (req.file) {
+    featuredImagePath = req.file.filename
+  }
+
+  // Prepare update data
+  const updateData = {
+    title,
+    content,
+    excerpt,
+    category,
+    // Process tags the same way as in createPost
+    tags: tags ? tags.split(",").map(tag => tag.trim()).filter(tag => tag !== '') : [],
+    isPublished: isPublished === "true" || isPublished === true,
+    featuredImage: featuredImagePath,
+    // Only update slug if title changed
+    ...(title && { slug: title.toLowerCase().replace(/[^\w]+/g, "-") })
+  }
+
+  console.log("Updating post with data:", updateData)
+
+  post = await Post.findByIdAndUpdate(req.params.id, updateData, {
     new: true,
     runValidators: true,
   })

@@ -93,7 +93,7 @@ useEffect(() => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto dark:bg-gray-950 dark:text-gray-300">
       <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
       {error && <div className="text-red-500 mb-4">{error}</div>}
       
@@ -139,7 +139,7 @@ useEffect(() => {
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded dark:text-gray-300 dark:bg-gray-950"
             required
           >
             <option value="">Select a category</option>
@@ -199,7 +199,7 @@ useEffect(() => {
 
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="bg-cyan-600 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
         >
           Create Post
         </button>

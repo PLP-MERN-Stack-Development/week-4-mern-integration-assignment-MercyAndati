@@ -18,11 +18,11 @@ const HomePage = () => {
   if (error) return <ErrorDisplay error={error.message} onRetry={fetchPosts} />
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Latest Posts</h1>
+    <div className="max-w-full mx-auto px-4 py-8 dark:bg-gray-950">
+      <h1 className="text-3xl font-bold mb-8 dark:text-gray-300">Latest Posts</h1>
 
       {postsData?.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 dark:text-gray-300">
           {console.log("Posts data:", postsData)}
           {postsData.map((post) => {
             // Debug the featuredImage field

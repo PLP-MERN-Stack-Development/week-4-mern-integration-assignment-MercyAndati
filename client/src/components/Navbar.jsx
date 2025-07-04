@@ -1,11 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import {useTheme} from '../context/ThemeContext';
 
 const Navbar = () => {
   const { user, logout, isLoading } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const { darkMode, setDarkMode } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -15,7 +17,7 @@ const Navbar = () => {
   console.log('Current user in Navbar:', user, 'Loading:', isLoading);
   
   return (
-    <header className="bg-gray-800 text-white">
+    <header className="bg-gray-800 text-white dark:bg-zinc-950">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold">
           MERN Blog
@@ -32,7 +34,11 @@ const Navbar = () => {
           <Link to="/categories" className="hover:text-gray-300">
             Categories
           </Link>
-          
+          <button
+          variant="secondary" 
+            onClick={()=> setDarkMode(!darkMode)}>
+              {darkMode ? '☀️ Light' : '🌙 Dark'}
+          </button>
           {isLoading ? (
             <div className="w-8 h-8 rounded-full bg-gray-600 animate-pulse"></div>
           ) : user ? (
@@ -66,6 +72,7 @@ const Navbar = () => {
               Login
             </Link>
           )}
+          
         </nav>
       </div>
     </header>
