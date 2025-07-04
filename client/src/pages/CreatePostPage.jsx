@@ -20,11 +20,14 @@ const [formData, setFormData] = useState({
   const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState(null);
 
+  console.log('Current user:', user);
+console.log('User ID being sent:', user?.id);
   //for debugging
   useEffect(() => {
   console.log('Categories loading state:', categoriesLoading);
   console.log('Categories error:', categoriesError);
   console.log('Full categories response:', categories);
+  
   if (categories?.data) {
     console.log('Nested data structure:', {
       success: categories.data.success,
@@ -33,6 +36,7 @@ const [formData, setFormData] = useState({
     });
   }
 }, [categoriesLoading, categoriesError, categories]);
+
 
 useEffect(() => {
   fetchCategories(); // This will trigger the API call
@@ -55,34 +59,34 @@ useEffect(() => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
+  e.preventDefault();
+  setError(null);
 
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('content', formData.content);
-      formDataToSend.append('excerpt', formData.excerpt);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('tags', formData.tags);
-      formDataToSend.append('isPublished', formData.isPublished);
-      if (formData.featuredImage) {
-        formDataToSend.append('featuredImage', formData.featuredImage);
-      }
-
-        //debugging
-      console.log('Form data being sent:', {
-      title: formData.title,
-      category: formData.category,
-      //others
-    });
-
-      const response = await postService.createPost(formDataToSend);
-      navigate(`/posts/${response.data._id}`);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create post');
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('content', formData.content);
+    formDataToSend.append('excerpt', formData.excerpt);
+    formDataToSend.append('category', formData.category);
+    formDataToSend.append('tags', formData.tags);
+    formDataToSend.append('isPublished', formData.isPublished);
+    formDataToSend.append('author', user.id);  // Changed from _id to id
+    if (formData.featuredImage) {
+      formDataToSend.append('featuredImage', formData.featuredImage);
     }
-  };
+
+    const response = await postService.createPost(formDataToSend);
+    navigate(`/posts/${response.data._id}`);
+  } catch (err) {
+  console.error('Full error response:', err.response);
+  setError(
+    err.response?.data?.message || 
+    err.response?.data?.error || 
+    err.message || 
+    'Failed to create post'
+  );
+}
+};
 
   if (!user) {
     return <div>Please login to create a post</div>;

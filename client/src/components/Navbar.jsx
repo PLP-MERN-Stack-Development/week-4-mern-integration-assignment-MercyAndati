@@ -24,6 +24,11 @@ const Navbar = () => {
           <Link to="/" className="hover:text-gray-300">
             Home
           </Link>
+          <Link 
+            to="/create-post" 
+          >
+            Create Post
+          </Link>
           <Link to="/categories" className="hover:text-gray-300">
             Categories
           </Link>

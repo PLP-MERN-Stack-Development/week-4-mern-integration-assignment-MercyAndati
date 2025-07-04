@@ -1,30 +1,61 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { postService, categoryService } from '../services/api';
-import useApi from '../hooks/useApi';
-import { useAuth } from '../context/AuthContext';
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { postService, categoryService } from "../services/api"
+import useApi from "../hooks/useApi"
+import { useAuth } from "../context/AuthContext"
 
 const EditPostPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const { data: categories } = useApi(categoryService.getAllCategories);
-  const { data: postData, request: fetchPost } = useApi(postService.getPost);
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  // Fix categories fetching to match CreatePostPage pattern
+  const {
+    data: categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+    request: fetchCategories,
+  } = useApi(categoryService.getAllCategories, { initialData: [] })
+
+  const { data: postData, request: fetchPost } = useApi(postService.getPost)
+
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    excerpt: '',
-    category: '',
-    tags: '',
+    title: "",
+    content: "",
+    excerpt: "",
+    category: "",
+    tags: "",
     isPublished: true,
     featuredImage: null,
-  });
-  const [previewImage, setPreviewImage] = useState(null);
-  const [error, setError] = useState(null);
+  })
+  const [previewImage, setPreviewImage] = useState(null)
+  const [error, setError] = useState(null)
+
+  // Fetch categories on mount (matching CreatePostPage)
+  useEffect(() => {
+    fetchCategories()
+  }, [])
 
   useEffect(() => {
-    fetchPost(id);
-  }, [id]);
+    fetchPost(id)
+  }, [id])
+
+  // Debug logging for categories (matching CreatePostPage)
+  useEffect(() => {
+    console.log("Categories loading state:", categoriesLoading)
+    console.log("Categories error:", categoriesError)
+    console.log("Full categories response:", categories)
+
+    if (categories?.data) {
+      console.log("Nested data structure:", {
+        success: categories.data.success,
+        count: categories.data.count,
+        firstCategory: categories.data.data?.[0],
+      })
+    }
+  }, [categoriesLoading, categoriesError, categories])
 
   useEffect(() => {
     if (postData) {
@@ -32,66 +63,96 @@ const EditPostPage = () => {
         title: postData.title,
         content: postData.content,
         excerpt: postData.excerpt,
-        category: postData.category?._id,
-        tags: postData.tags?.join(', '),
+        category: postData.category?._id || "",
+        tags: postData.tags?.join(", ") || "",
         isPublished: postData.isPublished,
         featuredImage: null,
-      });
+      })
       if (postData.featuredImage) {
-        setPreviewImage(`http://localhost:5000/uploads/${postData.featuredImage}`);
+        const baseUrl = import.meta.env.VITE_API_URL
+          ? import.meta.env.VITE_API_URL.replace("/api", "")
+          : "http://localhost:5000"
+        setPreviewImage(`${baseUrl}/uploads/${postData.featuredImage}`)
       }
     }
-  }, [postData]);
+  }, [postData])
 
   const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
+    const { name, value, type, checked, files } = e.target
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value,
-    });
-
-    if (type === 'file' && files[0]) {
-      const reader = new FileReader();
+      [name]: type === "checkbox" ? checked : type === "file" ? files[0] : value,
+    })
+    if (type === "file" && files[0]) {
+      const reader = new FileReader()
       reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(files[0]);
+        setPreviewImage(reader.result)
+      }
+      reader.readAsDataURL(files[0])
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-
+    e.preventDefault()
+    setError(null)
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('content', formData.content);
-      formDataToSend.append('excerpt', formData.excerpt);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('tags', formData.tags);
-      formDataToSend.append('isPublished', formData.isPublished);
+      const formDataToSend = new FormData()
+      formDataToSend.append("title", formData.title)
+      formDataToSend.append("content", formData.content)
+      formDataToSend.append("excerpt", formData.excerpt)
+      formDataToSend.append("category", formData.category)
+      formDataToSend.append("tags", formData.tags)
+      formDataToSend.append("isPublished", formData.isPublished)
       if (formData.featuredImage) {
-        formDataToSend.append('featuredImage', formData.featuredImage);
+        formDataToSend.append("featuredImage", formData.featuredImage)
       }
-
-      await postService.updatePost(id, formDataToSend);
-      navigate(`/posts/${id}`);
+      await postService.updatePost(id, formDataToSend)
+      navigate(`/posts/${id}`)
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update post');
+      console.error("Full error response:", err.response)
+      setError(err.response?.data?.message || err.response?.data?.error || err.message || "Failed to update post")
     }
-  };
+  }
 
-  if (!postData) return <div>Loading...</div>;
-  if (!user || (user._id !== postData.author?._id && user.role !== 'admin')) {
-    return <div>You are not authorized to edit this post</div>;
+  if (!postData) return <div className="text-center py-8">Loading...</div>
+
+  // Fix the authorization check to match PostPage logic
+  const canEdit =
+    user && postData && (user.id === postData.author?._id || user._id === postData.author?._id || user.role === "admin")
+
+  console.log("Edit authorization check:", {
+    userId: user?.id,
+    userIdAlt: user?._id,
+    authorId: postData?.author?._id,
+    userRole: user?.role,
+    canEdit,
+  })
+
+  if (!user || !canEdit) {
+    return (
+      <div className="text-center py-8 text-red-500">
+        <p>You are not authorized to edit this post</p>
+        <button onClick={() => navigate(`/posts/${id}`)} className="text-blue-500 hover:underline mt-4">
+          ← Back to Post
+        </button>
+      </div>
+    )
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Edit Post</h1>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Edit Post</h1>
+        <button
+          onClick={() => navigate(`/posts/${id}`)}
+          className="text-gray-600 hover:text-gray-800 px-3 py-1 border rounded"
+        >
+          Cancel
+        </button>
+      </div>
+
+      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-gray-700 mb-2">Title</label>
@@ -100,51 +161,58 @@ const EditPostPage = () => {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
-
         <div>
           <label className="block text-gray-700 mb-2">Content</label>
           <textarea
             name="content"
             value={formData.content}
             onChange={handleChange}
-            className="w-full p-2 border rounded min-h-[200px]"
+            className="w-full p-2 border rounded min-h-[200px] focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
-
         <div>
           <label className="block text-gray-700 mb-2">Excerpt</label>
           <textarea
             name="excerpt"
             value={formData.excerpt}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             maxLength="200"
           />
         </div>
-
         <div>
           <label className="block text-gray-700 mb-2">Category</label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           >
             <option value="">Select a category</option>
-            {categories?.data?.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
+            {categoriesLoading && (
+              <option value="" disabled>
+                Loading categories...
               </option>
-            ))}
+            )}
+            {categoriesError && (
+              <option value="" disabled>
+                Error loading categories
+              </option>
+            )}
+            {Array.isArray(categories) &&
+              categories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
           </select>
         </div>
-
         <div>
           <label className="block text-gray-700 mb-2">Tags (comma separated)</label>
           <input
@@ -152,10 +220,9 @@ const EditPostPage = () => {
             name="tags"
             value={formData.tags}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-
         <div>
           <label className="flex items-center space-x-2">
             <input
@@ -168,7 +235,6 @@ const EditPostPage = () => {
             <span>Publish immediately</span>
           </label>
         </div>
-
         <div>
           <label className="block text-gray-700 mb-2">Featured Image</label>
           <input
@@ -176,14 +242,14 @@ const EditPostPage = () => {
             name="featuredImage"
             onChange={handleChange}
             accept="image/*"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           {previewImage && (
             <div className="mt-2">
-              <img 
-                src={previewImage} 
-                alt="Preview" 
-                className="max-w-xs max-h-48 object-contain"
+              <img
+                src={previewImage || "/placeholder.svg"}
+                alt="Preview"
+                className="max-w-xs max-h-48 object-contain rounded"
               />
               {formData.featuredImage === null && (
                 <p className="text-sm text-gray-500 mt-1">Current image will be kept if no new image is selected</p>
@@ -191,25 +257,24 @@ const EditPostPage = () => {
             </div>
           )}
         </div>
-
         <div className="flex gap-2">
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Update Post
           </button>
           <button
             type="button"
             onClick={() => navigate(`/posts/${id}`)}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >
             Cancel
           </button>
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default EditPostPage;
+export default EditPostPage

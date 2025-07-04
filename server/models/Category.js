@@ -16,8 +16,9 @@ const CategorySchema = new mongoose.Schema({
 
 //creating slug from name before saving
 CategorySchema.pre('save', function(next){
-    this.slug = this.name.toLowerCase().replace(/[^\w]+/g, '-').replace(/-+/g, '-');
-    next();
+    if (!this.slug || this.slug.trim() === '') {
+        this.slug = this.name.toLowerCase().replace(/[^\w]+/g, '-').replace(/-+/g, '-');
+    }next();
 });
 
 module.exports = mongoose.model('Category', CategorySchema);
