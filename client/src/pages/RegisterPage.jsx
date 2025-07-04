@@ -40,10 +40,9 @@ const RegisterPage = () => {
     });
     register(response);
     setTimeout(() => {
-      window.location.href = '/'; // Same refresh pattern as login
+      window.location.href = '/';
     }, 100);
   } catch (err) {
-    // Improved error message handling
     const errorMessage = err.response?.data?.error || 
                         (err.code === 11000 ? 'Username or email already exists' : 'Registration failed');
     setError(errorMessage);

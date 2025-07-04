@@ -3,13 +3,10 @@ const jwt = require('jsonwebtoken');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/ErrorResponse');
 
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public
+// Register user, POST /api/auth/register, Public
 exports.register = asyncHandler(async (req, res, next) => {
   const { username, email, password } = req.body;
   
-  // Create user
   const user = await User.create({
     username,
     email,
@@ -19,9 +16,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 201, res);
 });
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
+// Login user, POST /api/auth/login, Public
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   

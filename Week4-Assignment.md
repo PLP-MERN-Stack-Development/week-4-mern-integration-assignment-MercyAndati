@@ -95,3 +95,9 @@ Build a full-stack MERN (MongoDB, Express.js, React.js, Node.js) application tha
      - Screenshots of the application
 6. Your submission will be automatically graded based on the criteria in the autograding configuration
 7. The instructor will review your submission after the autograding is complete 
+
+### screenshot of working application
+![homepage](image.png)
+![database](image-1.png) ![tables](image-2.png)
+![categories page](image-3.png)
+![logged in user page](image-4.png)

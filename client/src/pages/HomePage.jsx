@@ -8,84 +8,88 @@ import LoadingSpinner from "../components/LoadingSpinner"
 import ErrorDisplay from "../components/ErrorDisplay"
 
 const HomePage = () => {
-  const { data: postsData, error, loading, request: fetchPosts } = useApi(() => postService.getAllPosts(1, 10))
+  const { data: posts, error, loading, request } = useApi(postService.getAllPosts)
 
   useEffect(() => {
-    fetchPosts()
+    request()
   }, [])
 
+  // Filter to show only published posts
+  const publishedPosts = posts ? posts.filter((post) => post.isPublished === true) : []
+
+  // Fix image URL construction
+  const getImageUrl = (featuredImage) => {
+    if (!featuredImage || featuredImage === "default-post.jpg") return null
+    const baseUrl = import.meta.env.VITE_API_URL
+      ? import.meta.env.VITE_API_URL.replace("/api", "")
+      : "http://localhost:5000"
+    const cleanImagePath = featuredImage.replace(/\\/g, "/")
+    return `${baseUrl}/uploads/${cleanImagePath}`
+  }
+
   if (loading) return <LoadingSpinner />
-  if (error) return <ErrorDisplay error={error.message} onRetry={fetchPosts} />
+  if (error) return <ErrorDisplay error={error} onRetry={request} />
 
   return (
-    <div className="max-w-full mx-auto px-4 py-8 dark:bg-gray-950">
-      <h1 className="text-3xl font-bold mb-8 dark:text-gray-300">Latest Posts</h1>
+    <div className="max-w-7xl mx-auto px-4 py-8 dark:bg-gray-950 dark:text-gray-300">
+      <h1 className="text-3xl font-bold mb-8">Latest Posts</h1>
 
-      {postsData?.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 dark:text-gray-300">
-          {console.log("Posts data:", postsData)}
-          {postsData.map((post) => {
-            // Debug the featuredImage field
-            console.log("Post:", post._id, "Featured Image:", post.featuredImage)
-
-            // Fix the URL construction - remove /api and fix path separators
-            const baseUrl = import.meta.env.VITE_API_URL
-              ? import.meta.env.VITE_API_URL.replace("/api", "")
-              : "http://localhost:5000"
-
-            // Clean up the image path - replace backslashes with forward slashes
-            const cleanImagePath = post.featuredImage ? post.featuredImage.replace(/\\/g, "/") : null
-            const imageUrl = `${baseUrl}/uploads/${cleanImagePath}`
-
-            console.log("Base URL:", baseUrl)
-            console.log("Clean image path:", cleanImagePath)
-            console.log("Final image URL:", imageUrl)
-
-            return (
-              <div
-                key={post._id}
-                className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow"
-              >
-                <Link to={`/posts/${post._id}`}>
-                  {post.featuredImage && post.featuredImage !== "default-post.jpg" ? (
-                    <img
-                      src={imageUrl || "/placeholder.svg"}
-                      alt={post.title}
-                      className="w-full h-48 object-cover"
-                      onLoad={() => console.log("Image loaded successfully:", imageUrl)}
-                      onError={(e) => {
-                        console.error("Image failed to load:", imageUrl)
-                        e.target.onerror = null // Prevent infinite loop
-                        e.target.style.display = "none" // Hide broken image
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500">No image available</span>
-                    </div>
-                  )}
-
-                  <div className="p-4">
-                    <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-                    <p className="text-gray-600 mb-2">{post.excerpt}</p>
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                      <span>{post.viewCount} views</span>
-                    </div>
+      {publishedPosts.length > 0 ? (
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {publishedPosts.map((post) => (
+            <div key={post._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+              <Link to={`/posts/${post._id}`}>
+                {getImageUrl(post.featuredImage) ? (
+                  <img
+                    src={getImageUrl(post.featuredImage) || "/placeholder.svg"}
+                    alt={post.title}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.target.style.display = "none"
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-gray-500">No image available</span>
                   </div>
+                )}
+              </Link>
+
+              <div className="p-6">
+                <Link to={`/posts/${post._id}`}>
+                  <h2 className="text-xl font-semibold mb-2 hover:text-indigo-600 dark:hover:text-indigo-400">
+                    {post.title}
+                  </h2>
                 </Link>
+
+                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                  {post.excerpt || post.content?.substring(0, 150) + "..."}
+                </p>
+
+                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <span>By {post.author?.username || "Unknown"}</span>
+                    <span>•</span>
+                    <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>{post.viewCount || 0} views</span>
+                    {post.category && (
+                      <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded-full text-xs">
+                        {post.category.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-gray-500">No posts found. Create your first post!</p>
-          <Link
-            to="/create-post"
-            className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Create Post
+          <p className="text-gray-500 dark:text-gray-400 mb-4">No published posts available yet.</p>
+          <Link to="/create-post" className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+            Create the first post
           </Link>
         </div>
       )}

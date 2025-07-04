@@ -27,7 +27,7 @@ const CommentsSection = ({ comments, commentContent, setCommentContent, handleAd
           </button>
         </form>
       ) : (
-        <div className="mb-8 p-4 bg-gray-100 rounded">
+        <div className="mb-8 p-4 bg-gray-100 rounded dark:bg-gray-600">
           <p>
             Please <a href="/login" className="text-blue-500">login</a> to post a comment.
           </p>

@@ -42,21 +42,6 @@ const EditPostPage = () => {
     fetchPost(id)
   }, [id])
 
-  // Debug logging for categories (matching CreatePostPage)
-  useEffect(() => {
-    console.log("Categories loading state:", categoriesLoading)
-    console.log("Categories error:", categoriesError)
-    console.log("Full categories response:", categories)
-
-    if (categories?.data) {
-      console.log("Nested data structure:", {
-        success: categories.data.success,
-        count: categories.data.count,
-        firstCategory: categories.data.data?.[0],
-      })
-    }
-  }, [categoriesLoading, categoriesError, categories])
-
   useEffect(() => {
     if (postData) {
       setFormData({
@@ -109,24 +94,14 @@ const EditPostPage = () => {
       await postService.updatePost(id, formDataToSend)
       navigate(`/posts/${id}`)
     } catch (err) {
-      console.error("Full error response:", err.response)
       setError(err.response?.data?.message || err.response?.data?.error || err.message || "Failed to update post")
     }
   }
 
   if (!postData) return <div className="text-center py-8">Loading...</div>
 
-  // Fix the authorization check to match PostPage logic
   const canEdit =
     user && postData && (user.id === postData.author?._id || user._id === postData.author?._id || user.role === "admin")
-
-  console.log("Edit authorization check:", {
-    userId: user?.id,
-    userIdAlt: user?._id,
-    authorId: postData?.author?._id,
-    userRole: user?.role,
-    canEdit,
-  })
 
   if (!user || !canEdit) {
     return (

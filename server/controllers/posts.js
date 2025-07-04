@@ -2,17 +2,13 @@ const Post = require("../models/Post")
 const asyncHandler = require("../utils/asyncHandler")
 const ErrorResponse = require("../utils/ErrorResponse")
 
-// @desc    Get all posts
-// @route   GET /api/posts
-// @access  Public
+// Get all posts, GET /api/posts, Public
 exports.getPosts = asyncHandler(async (req, res, next) => {
   const posts = await Post.find().populate("author", "username").populate("category", "name")
   res.status(200).json({ success: true, data: posts })
 })
 
-// @desc    Get single post
-// @route   GET /api/posts/:id
-// @access  Public
+// Get single post, GET /api/posts/:id, Public
 exports.getPost = asyncHandler(async (req, res, next) => {
   console.log("Received ID:", req.params.id)
   const post = await Post.findById(req.params.id).populate("author category comments.user")
@@ -27,9 +23,7 @@ exports.getPost = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: post })
 })
 
-// @desc    Create new post
-// @route   POST /api/posts
-// @access  Private
+// Create new post, POST /api/posts, Private
 exports.createPost = asyncHandler(async (req, res, next) => {
   try {
     console.log("Create post request body:", req.body)
@@ -70,9 +64,7 @@ exports.createPost = asyncHandler(async (req, res, next) => {
   }
 })
 
-// @desc    Update post
-// @route   PUT /api/posts/:id
-// @access  Private
+// Update post, PUT /api/posts/:id, Private
 exports.updatePost = asyncHandler(async (req, res, next) => {
   let post = await Post.findById(req.params.id)
 
@@ -100,7 +92,6 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
     content,
     excerpt,
     category,
-    // Process tags the same way as in createPost
     tags: tags ? tags.split(",").map(tag => tag.trim()).filter(tag => tag !== '') : [],
     isPublished: isPublished === "true" || isPublished === true,
     featuredImage: featuredImagePath,
@@ -118,9 +109,7 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: post })
 })
 
-// @desc    Delete post
-// @route   DELETE /api/posts/:id
-// @access  Private
+// Delete post, DELETE /api/posts/:id, Private
 exports.deletePost = asyncHandler(async (req, res, next) => {
   console.log("Delete request for post ID:", req.params.id)
   console.log("User making request:", req.user.id, "Role:", req.user.role)
@@ -145,9 +134,7 @@ exports.deletePost = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: {} })
 })
 
-// @desc    Add comment to post
-// @route   POST /api/posts/:id/comments
-// @access  Private
+//Add comment to post, POST /api/posts/:id/comments, Private
 exports.addComment = asyncHandler(async (req, res, next) => {
   const { content } = req.body
   const postId = req.params.id
@@ -165,7 +152,6 @@ exports.addComment = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Post not found with id ${postId}`, 404))
   }
 
-  // Add comment using the model method
   await post.addComment(userId, content.trim())
 
   // Fetch the updated post with populated comments

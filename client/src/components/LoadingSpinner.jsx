@@ -1,4 +1,3 @@
-// src/components/LoadingSpinner.jsx
 const LoadingSpinner = () => {
   return (
     <div className="flex justify-center items-center py-12">
