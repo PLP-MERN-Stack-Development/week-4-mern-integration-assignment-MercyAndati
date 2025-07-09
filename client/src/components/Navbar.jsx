@@ -18,11 +18,11 @@ const Navbar = () => {
 
   return (
     <header className="bg-gray-800 text-white dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center ">
+        <Link to="/" className="md:text-2xl font-bold text-base">
           MERN Blog
         </Link>
-        <nav className="flex items-center space-x-6">
+        <nav className="grid grid-cols-2  md:flex items-center md:space-x-6 space-x-2 text-sm md:text-base lg:text-lg xl:text-xl ">
           <Link to="/" className="hover:text-gray-300">
             Home
           </Link>

@@ -143,12 +143,12 @@ const PostPage = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-4 mb-6 text-gray-600">
+        <div className="grid grid-cols-3 md:flex items-center gap-4 mb-6 text-gray-600">
           <span>By {post.author?.username || "Unknown"}</span>
           <span>{new Date(post.createdAt).toLocaleDateString()}</span>
           <span>{post.viewCount || 0} views</span>
           {post.category && (
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+            <span className="bg-blue-100 text-blue-800 px-2 text-center py-1 rounded-full text-sm">
               {post.category.name}
             </span>
           )}
@@ -158,13 +158,13 @@ const PostPage = () => {
               ? post.tags.map((tag, idx) => (
                   <span
                     key={idx}
-                    className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm dark:bg-fuchsia-200 dark:text-fuchsia-700 "
+                    className=" text-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm dark:bg-fuchsia-200 dark:text-fuchsia-700 "
                   >
                     {tag}
                   </span>
                 ))
               : (
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">
+                  <span className="text-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">
                     {post.tags}
                   </span>
                 )
@@ -172,7 +172,7 @@ const PostPage = () => {
         </div>
 
         <div className="prose max-w-none mb-8">
-          <div className="whitespace-pre-wrap">{post.content}</div>
+          <div className="text-base whitespace-pre-wrap">{post.content}</div>
         </div>
       </article>
 
